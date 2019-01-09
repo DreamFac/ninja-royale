@@ -21,7 +21,8 @@ public class MainCamera : MonoBehaviour
     // Use this for initialization
     void Start()
     {
-        
+        followOffset = new Vector3(1f, -2.5f, 6f);
+        translationOffset = new Vector3(0f, 1f, 0f);
     }
 
     // Update is called once per frame
