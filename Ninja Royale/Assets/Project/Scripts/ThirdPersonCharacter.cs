@@ -10,7 +10,7 @@ public class ThirdPersonCharacter : MonoBehaviour
 {
     [SerializeField] float m_MovingTurnSpeed = 360;
     [SerializeField] float m_StationaryTurnSpeed = 180;
-    [SerializeField] float m_JumpPower = 12f;
+    [SerializeField] float m_JumpPower = 16f;
     [Range(1f, 4f)] [SerializeField] float m_GravityMultiplier = 2f;
     [SerializeField] float m_RunCycleLegOffset = 0.2f; //specific to the character in sample assets, will need to be modified to work with others
     [SerializeField] float m_MoveSpeedMultiplier = 1f;
@@ -57,6 +57,7 @@ public class ThirdPersonCharacter : MonoBehaviour
         if (move.magnitude > 1f) move.Normalize();
 
         m_Rigidbody.velocity = new Vector3(move.x * m_MoveSpeedMultiplier, m_Rigidbody.velocity.y, move.z * m_MoveSpeedMultiplier);
+        
         move = transform.InverseTransformDirection(move);
         CheckGroundStatus();
         move = Vector3.ProjectOnPlane(move, m_GroundNormal);
@@ -86,10 +87,7 @@ public class ThirdPersonCharacter : MonoBehaviour
 
 	// Update is called once per frame
 	void Update () {
-        if (Input.GetButtonDown("Fire1"))
-        {
-            m_Animator.SetTrigger("MainAttack");
-        }
+        
     }
 
     void UpdateAnimator(Vector3 move)
