@@ -10,8 +10,10 @@ public class ThirdPersonUserControl : MonoBehaviour {
     private Vector3 m_CamForward;             // The current forward direction of the camera
     private Vector3 m_Move;
     private bool m_Jump;                      // the world-relative desired move direction, calculated from the camForward and user input.
-                                              // Use this for initialization
-    void Start () {
+    private bool m_Prone;
+    
+    // Use this for initialization
+    void Start() {
         // get the transform of the main camera
         if (Camera.main != null)
         {
@@ -27,14 +29,18 @@ public class ThirdPersonUserControl : MonoBehaviour {
         // get the third person character ( this should never be null due to require component )
         m_Character = GetComponent<ThirdPersonCharacter>();
     }
-	
-	// Update is called once per frame
-	void Update () {
+
+    // Update is called once per frame
+    void Update() {
         Debug.Log("jump: " + m_Jump);
         if (!m_Jump)
         {
             m_Jump = CrossPlatformInputManager.GetButtonDown("Jump");
-            
+
+        }
+        if (Input.GetKeyDown(KeyCode.C))
+        {
+            m_Prone = !m_Prone;
         }
     }
 
@@ -43,8 +49,7 @@ public class ThirdPersonUserControl : MonoBehaviour {
         // read inputs
         float h = CrossPlatformInputManager.GetAxis("Horizontal");
         float v = CrossPlatformInputManager.GetAxis("Vertical");
-        bool crouch = Input.GetKey(KeyCode.C);
-
+        
         // calculate move direction to pass to character
         if (m_Cam != null)
         {
@@ -63,7 +68,7 @@ public class ThirdPersonUserControl : MonoBehaviour {
 #endif
 
         // pass all parameters to the character control script
-        m_Character.Move(m_Move, crouch, m_Jump);
+        m_Character.Move(m_Move, m_Prone, m_Jump);
         m_Jump = false;
     }
 }
