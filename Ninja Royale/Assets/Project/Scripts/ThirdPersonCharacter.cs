@@ -34,6 +34,7 @@ public class ThirdPersonCharacter : MonoBehaviour
     Vector3 m_CapsuleCenter;
     CapsuleCollider m_Capsule;
     bool m_Crouching;
+    bool m_Prone;
 
 
     // Use this for initialization
@@ -49,7 +50,7 @@ public class ThirdPersonCharacter : MonoBehaviour
         m_OrigGroundCheckDistance = m_GroundCheckDistance;
     }
 	
-    public void Move(Vector3 move, bool crouch, bool jump)
+    public void Move(Vector3 move, bool prone, bool jump)
     {
         // convert the world relative moveInput vector into a local-relative
         // turn amount and forward amount required to head in the desired
@@ -65,13 +66,14 @@ public class ThirdPersonCharacter : MonoBehaviour
         m_TurnAmount = Input.GetAxis("Mouse X") * m_CursorSensitivity;
         m_ForwardAmount = move.z;
         m_StrafeAmount = Input.GetAxis("Horizontal");
+        m_Prone = prone;
 
         ApplyExtraTurnRotation();
 
         // control and velocity handling is different when grounded and airborne:
         if (m_IsGrounded)
         {
-            HandleGroundedMovement(crouch, jump);
+            HandleGroundedMovement(prone, jump);
         }
         else
         {
@@ -92,16 +94,15 @@ public class ThirdPersonCharacter : MonoBehaviour
 
     void UpdateAnimator(Vector3 move)
     {
-
-        
         // update the animator parameters
         m_Animator.SetFloat("Forward", m_ForwardAmount, 0.1f, Time.deltaTime);
         //m_Animator.SetFloat("Turn", m_TurnAmount, 0.1f, Time.deltaTime);
         m_Animator.SetFloat("Strafe", m_StrafeAmount, 0.1f, Time.deltaTime);
         //m_Animator.SetBool("Crouch", m_Crouching);
         m_Animator.SetBool("OnGround", m_IsGrounded);
+        m_Animator.SetBool("Prone", m_Prone);
 
-        
+
         if (!m_IsGrounded)
         {
             float jump_axis = m_Rigidbody.velocity.y;
@@ -159,16 +160,31 @@ public class ThirdPersonCharacter : MonoBehaviour
         m_GroundCheckDistance = m_Rigidbody.velocity.y < 0 ? m_OrigGroundCheckDistance : 0.01f;
     }
 
-    void HandleGroundedMovement(bool crouch, bool jump)
+    void HandleGroundedMovement(bool prone, bool jump)
     {
         // check whether conditions are right to allow a jump:
-        if (jump && !crouch && (m_Animator.GetCurrentAnimatorStateInfo(0).IsName("Grounded") || m_Animator.GetCurrentAnimatorStateInfo(0).IsName("LeftSide")))
+        if (jump && !prone && (m_Animator.GetCurrentAnimatorStateInfo(0).IsName("Grounded") || m_Animator.GetCurrentAnimatorStateInfo(0).IsName("LeftSide")))
         {
             // jump!
             m_Rigidbody.velocity = new Vector3(m_Rigidbody.velocity.x, m_JumpPower, m_Rigidbody.velocity.z);
             m_IsGrounded = false;
             m_Animator.applyRootMotion = false;
             m_GroundCheckDistance = 0.1f;
+        }
+
+        if (prone && Input.GetKey(KeyCode.LeftShift))
+        {
+            m_Animator.SetFloat("Crawling", m_ForwardAmount, 0.1f, Time.deltaTime);
+        }
+        else if (m_Prone)
+        {
+            m_StrafeAmount = 0f;
+            m_ForwardAmount = 0f;
+            m_Rigidbody.velocity *= 0f;
+            m_Animator.SetFloat("Crawling", 0f, 0.1f, Time.deltaTime);
+        } else if (!m_Prone)
+        {
+            m_Animator.SetFloat("Crawling", 0f, 0.1f, Time.deltaTime);
         }
     }
 
