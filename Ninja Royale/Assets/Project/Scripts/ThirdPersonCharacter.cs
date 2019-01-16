@@ -62,7 +62,6 @@ public class ThirdPersonCharacter : MonoBehaviour
         move = transform.InverseTransformDirection(move);
         CheckGroundStatus();
         move = Vector3.ProjectOnPlane(move, m_GroundNormal);
-        //Debug.Log(Input.GetAxis("Mouse X"));
         m_TurnAmount = Input.GetAxis("Mouse X") * m_CursorSensitivity;
         m_ForwardAmount = move.z;
         m_StrafeAmount = Input.GetAxis("Horizontal");
@@ -96,9 +95,7 @@ public class ThirdPersonCharacter : MonoBehaviour
     {
         // update the animator parameters
         m_Animator.SetFloat("Forward", m_ForwardAmount, 0.1f, Time.deltaTime);
-        //m_Animator.SetFloat("Turn", m_TurnAmount, 0.1f, Time.deltaTime);
         m_Animator.SetFloat("Strafe", m_StrafeAmount, 0.1f, Time.deltaTime);
-        //m_Animator.SetBool("Crouch", m_Crouching);
         m_Animator.SetBool("OnGround", m_IsGrounded);
         m_Animator.SetBool("Prone", m_Prone);
 
@@ -106,7 +103,6 @@ public class ThirdPersonCharacter : MonoBehaviour
         if (!m_IsGrounded)
         {
             float jump_axis = m_Rigidbody.velocity.y;
-            Debug.Log("jump value: " + jump_axis);
             m_Animator.SetFloat("Jump", jump_axis);
         }
 
@@ -123,7 +119,6 @@ public class ThirdPersonCharacter : MonoBehaviour
             m_Animator.SetFloat("JumpLeg", jumpLeg);
         }
         
-        Debug.Log("Grounded: "+m_IsGrounded);
         // the anim speed multiplier allows the overall speed of walking/running to be tweaked in the inspector,
         // which affects the movement speed because of the root motion.
         if (m_IsGrounded && move.magnitude > 0)

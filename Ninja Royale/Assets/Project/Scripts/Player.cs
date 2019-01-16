@@ -3,12 +3,15 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [RequireComponent(typeof(Animator))]
-public class Player : MonoBehaviour {
-    [Header("Focal point variables")]
+[RequireComponent(typeof(Rigidbody))]
+public class Player : MonoBehaviour
+{
+    [Header("Anchor Point variables")]
     [SerializeField] private GameObject focalPoint;
     [SerializeField] private float focalDistance;
     [SerializeField] private float focalSmoothness;
     [SerializeField] public KeyCode changeFocalSideKey;
+    [SerializeField] private GameObject gameCamera;
     [SerializeField] public float dashThresHold;
     public bool isFocalPointOnLeft = false;
     public bool dash = false;
@@ -16,21 +19,33 @@ public class Player : MonoBehaviour {
     // Use this for initialization
     private int forwardDashKeyCounter;
     Animator m_Animator;
+    Rigidbody m_Rigidbody;
+    private bool enableClimb = false;
+    private RigidbodyConstraints originalConstraints;
 
+    void Awake()
+    {
+        originalConstraints = RigidbodyConstraints.FreezeRotation;
+    }
 
-    void Start () {
+    void Start()
+    {
         forwardDashKeyCounter = 0;
         m_Animator = GetComponent<Animator>();
+        m_Rigidbody = GetComponent<Rigidbody>();
         Cursor.lockState = CursorLockMode.Locked;
     }
-	
-	// Update is called once per frame
-	void Update () {
+
+    // Update is called once per frame
+    void Update()
+    {
 
         checkSide();
         checkAttack();
         checkDash();
-       
+
+        CheckInteractionStatus();
+
         float targetX = focalDistance * (isFocalPointOnLeft ? -1 : 1);
         float smoothX = Mathf.Lerp(focalPoint.transform.localPosition.x, targetX, focalSmoothness * Time.deltaTime);
         focalPoint.transform.localPosition = new Vector3(smoothX, focalPoint.transform.localPosition.y, focalPoint.transform.localPosition.z);
@@ -57,10 +72,9 @@ public class Player : MonoBehaviour {
     {
         if (Input.GetKeyDown(KeyCode.W))
         {
-            Debug.Log("dash counter: " + forwardDashKeyCounter);
             if (!dash)
             {
-                
+
                 float keyPressedDelta = Time.time - dashDelta;
 
                 if (keyPressedDelta < dashThresHold)
@@ -71,7 +85,7 @@ public class Player : MonoBehaviour {
                         dash = true;
                     }
                 }
-                
+
                 dashDelta = Time.time;
             }
         }
@@ -84,6 +98,56 @@ public class Player : MonoBehaviour {
                 dashDelta = 0;
             }
 
+        }
+    }
+
+    void CheckInteractionStatus()
+    {
+        RaycastHit hitInfo;
+
+#if UNITY_EDITOR
+        // helper to visualise the ground check ray in the scene view
+        Debug.DrawLine(gameCamera.transform.position, gameCamera.transform.position + gameCamera.transform.forward * 4.5f, Color.green);
+#endif
+        // check if it hits something
+        if (Physics.Raycast(gameCamera.transform.position, gameCamera.transform.forward, out hitInfo, 4.5f))
+        {
+            if (Input.GetKey(KeyCode.LeftShift) && Input.GetKey(KeyCode.W))
+            {
+                m_Rigidbody.constraints = originalConstraints;
+                m_Animator.SetBool("EnableClimb", true);
+                m_Rigidbody.useGravity = false;
+                m_Animator.SetFloat("Climbing", 2f, 0.1f, Time.deltaTime);
+                m_Rigidbody.MovePosition(transform.position + new Vector3(0f, 2f, 0f) * 3f * Time.deltaTime);
+
+            } else if (Input.GetKey(KeyCode.LeftShift) && (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.D)))
+            {
+                Debug.Log("A or D");
+                m_Rigidbody.constraints = originalConstraints;
+                m_Animator.SetBool("EnableClimb", true);
+                m_Rigidbody.useGravity = false;
+                m_Animator.SetFloat("Climbing", 2f, 0.1f, Time.deltaTime);
+            }
+            else if (Input.GetKey(KeyCode.LeftShift))
+            {
+                m_Rigidbody.useGravity = false;
+                m_Animator.SetBool("EnableClimb", true);
+                m_Animator.SetFloat("Climbing", 2f, 0.1f, Time.deltaTime);
+                m_Rigidbody.constraints = RigidbodyConstraints.FreezePosition;
+            }
+            else
+            {
+                m_Rigidbody.useGravity = false;
+                m_Animator.SetBool("EnableClimb", false);
+                m_Rigidbody.constraints = originalConstraints;
+                m_Animator.SetFloat("Climbing", 0f, 0.1f, Time.deltaTime);
+            }
+        }
+        else
+        {
+            m_Rigidbody.useGravity = true;
+            m_Animator.SetBool("EnableClimb", false);
+            m_Animator.SetFloat("Climbing", 0f, 0.1f, Time.deltaTime);
         }
     }
 
