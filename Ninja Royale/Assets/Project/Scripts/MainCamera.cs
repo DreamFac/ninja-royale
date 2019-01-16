@@ -17,10 +17,14 @@ public class MainCamera : MonoBehaviour
 
     [SerializeField] private float power = 0.1f;
 
-    private Player player;
+    [SerializeField] private GameObject character;
 
+    [SerializeField] private float dashCameraZ;
+    [SerializeField] private float dashCameraZSmooth;
 
+    private Player ninja;
     private float verticalRotationAngle;
+    
     
 
     // Use this for initialization
@@ -28,9 +32,8 @@ public class MainCamera : MonoBehaviour
     {
         
         followOffset = new Vector3(1f, -2.5f, 6f);
-        followDashOffset = new Vector3(1f, -4f, 10f);
         translationOffset = new Vector3(0f, 1f, 0f);
-        player = GameObject.FindObjectOfType<Player>();
+        ninja = character.GetComponent<Player>();
     }
 
     // Update is called once per frame
@@ -45,17 +48,28 @@ public class MainCamera : MonoBehaviour
         float yAngle = target.transform.eulerAngles.y;
         Quaternion rotation = Quaternion.Euler(0, yAngle, 0);
 
-        if (!player.dash)
+        if (!ninja.dash)
         {
             transform.position = target.transform.position - (rotation * followOffset);
             transform.LookAt(target.transform.position + translationOffset);
         }
         else
         {
-            transform.position = target.transform.position - (rotation * followDashOffset);
+            
+            //Linear interpolation between transition
+            followDashOffset = new Vector3(1f, -5f, dashCameraZ);
+            Vector3 smoothDash = target.transform.position - (rotation * followDashOffset);
+            transform.position = Vector3.Lerp(transform.position, smoothDash, dashCameraZSmooth);
+
+
+            //make camera shake
             transform.localPosition = transform.localPosition + Random.insideUnitSphere * power;
+
+
             transform.LookAt(target.transform.position + translationOffset);
         }
+
+        
 
         // Make camera look up or down
         verticalRotationAngle += Input.GetAxis("Mouse Y") * rotationSensitivity;
