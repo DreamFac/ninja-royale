@@ -18,6 +18,8 @@ public class ThirdPersonCharacter : MonoBehaviour
     [SerializeField] float m_GroundCheckDistance = 0.1f;
     [SerializeField] float m_CursorSensitivity = 1f;
 
+    [SerializeField] float boost = 500f;
+
     private bool isRightSide = true;
     private Player player;
 
@@ -58,7 +60,14 @@ public class ThirdPersonCharacter : MonoBehaviour
         if (move.magnitude > 1f) move.Normalize();
 
         m_Rigidbody.velocity = new Vector3(move.x * m_MoveSpeedMultiplier, m_Rigidbody.velocity.y, move.z * m_MoveSpeedMultiplier);
-        
+
+        if (player.dash)
+        {
+            Debug.Log("accelerate");
+            m_Rigidbody.AddForce(move * boost, ForceMode.Impulse);
+        }
+
+
         move = transform.InverseTransformDirection(move);
         CheckGroundStatus();
         move = Vector3.ProjectOnPlane(move, m_GroundNormal);
