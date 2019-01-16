@@ -32,7 +32,6 @@ public class ThirdPersonUserControl : MonoBehaviour {
 
     // Update is called once per frame
     void Update() {
-        Debug.Log("jump: " + m_Jump);
         if (!m_Jump)
         {
             m_Jump = CrossPlatformInputManager.GetButtonDown("Jump");

@@ -44,7 +44,6 @@ public class MainCamera : MonoBehaviour
         //Make Camera look at target
         float yAngle = target.transform.eulerAngles.y;
         Quaternion rotation = Quaternion.Euler(0, yAngle, 0);
-        Debug.Log("dash from camera: " + player.dash);
 
         if (!player.dash)
         {
