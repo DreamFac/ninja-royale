@@ -128,14 +128,9 @@ public class Player : MonoBehaviour
         // check if it hits something
         if (Physics.Raycast(gameCamera.transform.position, gameCamera.transform.forward, out hitInfo, 4.5f))
         {
-            Debug.Log("Collider friction ---------- " + _collider.material.staticFriction);
-            
             if (Input.GetKey(KeyCode.LeftShift) && Input.GetKey(KeyCode.W))
             {
-                m_Rigidbody.isKinematic = true;
                 m_Rigidbody.Sleep();
-                m_Rigidbody.isKinematic = false;
-                m_Rigidbody.WakeUp();
 
                 m_Rigidbody.constraints = originalConstraints;
                 m_Animator.SetBool("EnableClimb", true);
