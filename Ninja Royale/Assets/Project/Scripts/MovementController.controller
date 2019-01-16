@@ -404,8 +404,8 @@ AnimatorStateTransition:
   m_PrefabInternal: {fileID: 0}
   m_Name: 
   m_Conditions:
-  - m_ConditionMode: 2
-    m_ConditionEvent: OnGround
+  - m_ConditionMode: 3
+    m_ConditionEvent: Jump
     m_EventTreshold: 0
   m_DstStateMachine: {fileID: 0}
   m_DstState: {fileID: 1102949109615952216}
@@ -433,7 +433,7 @@ AnimatorStateTransition:
     m_EventTreshold: 0
   - m_ConditionMode: 3
     m_ConditionEvent: Jump
-    m_EventTreshold: -17
+    m_EventTreshold: -75
   m_DstStateMachine: {fileID: 0}
   m_DstState: {fileID: 1102448924213735786}
   m_Solo: 0
