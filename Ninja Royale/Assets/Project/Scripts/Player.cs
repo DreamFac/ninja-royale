@@ -25,6 +25,7 @@ public class Player : MonoBehaviour
     private RigidbodyConstraints originalConstraints;
     private bool firstDashTime;
     ParticleSystem dashParticles;
+    private Collider _collider;
 
     void Awake()
     {
@@ -40,6 +41,7 @@ public class Player : MonoBehaviour
         m_Animator = GetComponent<Animator>();
         m_Rigidbody = GetComponent<Rigidbody>();
         Cursor.lockState = CursorLockMode.Locked;
+        _collider = m_Rigidbody.GetComponent<Collider>();
         dashParticles = dashTrail.GetComponent<ParticleSystem>();
     }
 
@@ -97,7 +99,6 @@ public class Player : MonoBehaviour
                 }
 
                 dashDelta = Time.time;
-                Debug.Log("dash counter: " + forwardDashKeyCounter);
                 firstDashTime = false;
             }
         }
@@ -127,8 +128,15 @@ public class Player : MonoBehaviour
         // check if it hits something
         if (Physics.Raycast(gameCamera.transform.position, gameCamera.transform.forward, out hitInfo, 4.5f))
         {
+            Debug.Log("Collider friction ---------- " + _collider.material.staticFriction);
+            
             if (Input.GetKey(KeyCode.LeftShift) && Input.GetKey(KeyCode.W))
             {
+                m_Rigidbody.isKinematic = true;
+                m_Rigidbody.Sleep();
+                m_Rigidbody.isKinematic = false;
+                m_Rigidbody.WakeUp();
+
                 m_Rigidbody.constraints = originalConstraints;
                 m_Animator.SetBool("EnableClimb", true);
                 m_Rigidbody.useGravity = false;
