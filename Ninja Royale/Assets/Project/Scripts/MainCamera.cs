@@ -15,6 +15,8 @@ public class MainCamera : MonoBehaviour
     [SerializeField] private float minViewingAngle;
     [SerializeField] private float rotationSensitivity;
 
+    [SerializeField] private float power = 0.1f;
+
     private Player player;
 
 
@@ -26,7 +28,7 @@ public class MainCamera : MonoBehaviour
     {
         
         followOffset = new Vector3(1f, -2.5f, 6f);
-        followDashOffset = new Vector3(1f, -5f, 12f);
+        followDashOffset = new Vector3(1f, -4f, 10f);
         translationOffset = new Vector3(0f, 1f, 0f);
         player = GameObject.FindObjectOfType<Player>();
     }
@@ -52,6 +54,7 @@ public class MainCamera : MonoBehaviour
         else
         {
             transform.position = target.transform.position - (rotation * followDashOffset);
+            transform.localPosition = transform.localPosition + Random.insideUnitSphere * power;
             transform.LookAt(target.transform.position + translationOffset);
         }
 
