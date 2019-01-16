@@ -148,7 +148,7 @@ public class Player : MonoBehaviour
                 m_Rigidbody.useGravity = false;
                 m_Animator.SetBool("EnableClimb", true);
                 m_Animator.SetFloat("Climbing", 2f, 0.1f, Time.deltaTime);
-                m_Rigidbody.constraints = RigidbodyConstraints.FreezePosition;
+                m_Rigidbody.constraints = RigidbodyConstraints.FreezeRotation | RigidbodyConstraints.FreezePosition;
             }
             else
             {
@@ -162,6 +162,7 @@ public class Player : MonoBehaviour
         {
             m_Rigidbody.useGravity = true;
             m_Animator.SetBool("EnableClimb", false);
+            m_Rigidbody.constraints = originalConstraints;
             m_Animator.SetFloat("Climbing", 0f, 0.1f, Time.deltaTime);
         }
     }
