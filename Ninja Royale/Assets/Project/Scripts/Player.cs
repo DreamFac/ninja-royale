@@ -8,6 +8,7 @@ public class Player : MonoBehaviour
 {
     [Header("Anchor Point variables")]
     [SerializeField] private GameObject focalPoint;
+    [SerializeField] private GameObject dashTrail;
     [SerializeField] private float focalDistance;
     [SerializeField] private float focalSmoothness;
     [SerializeField] public KeyCode changeFocalSideKey;
@@ -22,18 +23,24 @@ public class Player : MonoBehaviour
     Rigidbody m_Rigidbody;
     private bool enableClimb = false;
     private RigidbodyConstraints originalConstraints;
+    private bool firstDashTime;
+    ParticleSystem dashParticles;
 
     void Awake()
     {
         originalConstraints = RigidbodyConstraints.FreezeRotation;
     }
 
-    void Start()
-    {
+
+    void Start () {
+        firstDashTime = true;
+        dash = false;
         forwardDashKeyCounter = 0;
+        dashThresHold = 0.5f;
         m_Animator = GetComponent<Animator>();
         m_Rigidbody = GetComponent<Rigidbody>();
         Cursor.lockState = CursorLockMode.Locked;
+        dashParticles = dashTrail.GetComponent<ParticleSystem>();
     }
 
     // Update is called once per frame
@@ -74,19 +81,24 @@ public class Player : MonoBehaviour
         {
             if (!dash)
             {
+                
+                float keyPressedDelta = firstDashTime? dashThresHold+1: Time.time - dashDelta;
 
-                float keyPressedDelta = Time.time - dashDelta;
-
-                if (keyPressedDelta < dashThresHold)
+                if (keyPressedDelta < dashThresHold )
                 {
                     forwardDashKeyCounter = forwardDashKeyCounter + 1;
                     if (forwardDashKeyCounter == 1)
                     {
                         dash = true;
+                        dashParticles.Play();
+                        ParticleSystem.EmissionModule em = dashParticles.emission;
+                        em.enabled = true;
                     }
                 }
 
                 dashDelta = Time.time;
+                Debug.Log("dash counter: " + forwardDashKeyCounter);
+                firstDashTime = false;
             }
         }
         if (Input.GetKeyUp(KeyCode.W))
@@ -96,6 +108,9 @@ public class Player : MonoBehaviour
                 dash = false;
                 forwardDashKeyCounter = 0;
                 dashDelta = 0;
+                dashParticles.Stop();
+                ParticleSystem.EmissionModule em = dashParticles.emission;
+                em.enabled = false;
             }
 
         }
