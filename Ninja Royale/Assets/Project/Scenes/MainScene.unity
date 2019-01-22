@@ -144,7 +144,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   target: {fileID: 1953163362}
   rotationAnchorObject: {fileID: 534584054}
-  followOffset: {x: 0, y: -2.5, z: 6}
+  followOffset: {x: 1, y: -2.5, z: 6}
   followDashOffset: {x: 0, y: 0, z: 0}
   translationOffset: {x: 0, y: 1, z: 0}
   maxViewingAngle: 80
@@ -5269,7 +5269,7 @@ Transform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 1953163362}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 1, y: 0, z: 3.5}
+  m_LocalPosition: {x: 0.5, y: 0, z: 3.5}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 1979311932}
@@ -5298,8 +5298,8 @@ MonoBehaviour:
   changeFocalSideKey: 113
   gameCamera: {fileID: 32548962}
   dashThresHold: 0.5
+  doubleTapDeltaTime: 0
   isFocalPointOnLeft: 0
-  dash: 0
 --- !u!4 &1979311932 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 400106, guid: 24bdb7cc7a8d8a745a84df6c531bc19d,

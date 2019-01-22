@@ -48,25 +48,27 @@ public class MainCamera : MonoBehaviour
         float yAngle = target.transform.eulerAngles.y;
         Quaternion rotation = Quaternion.Euler(0, yAngle, 0);
 
-        if (!ninja.dash)
+        if (!ninja.forwardDashDoubleTap.trigger)
         {
             transform.position = target.transform.position - (rotation * followOffset);
             transform.LookAt(target.transform.position + translationOffset);
         }
         else
         {
-            
+
             //Linear interpolation between transition
             followDashOffset = new Vector3(1f, -5f, dashCameraZ);
             Vector3 smoothDash = target.transform.position - (rotation * followDashOffset);
             transform.position = Vector3.Lerp(transform.position, smoothDash, dashCameraZSmooth);
 
-
-            //make camera shake
-            transform.localPosition = transform.localPosition + Random.insideUnitSphere * power;
-
+            if (!ninja.IsSideDash())
+            {
+                //make camera shake
+                transform.localPosition = transform.localPosition + Random.insideUnitSphere * power;
+            }
 
             transform.LookAt(target.transform.position + translationOffset);
+            
         }
 
         
