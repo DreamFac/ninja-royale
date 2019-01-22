@@ -92,8 +92,7 @@ public class Player : MonoBehaviour
 
     void CheckDash()
     {
-        forwardDashDoubleTap.CheckDoubleTapUp(ActivateParticles(), DeactivateParticles());
-
+        forwardDashDoubleTap.CheckDoubleTapTime(ActivateParticles(), DeactivateParticles(), doubleTapDeltaTime);
         leftDashDoubleTap.CheckDoubleTapTime(ActivateParticles(), DeactivateParticles(), doubleTapDeltaTime); 
         rightDashDoubleTap.CheckDoubleTapTime(ActivateParticles(), DeactivateParticles(), doubleTapDeltaTime);
         backDashDoubleTap.CheckDoubleTapTime(ActivateParticles(), DeactivateParticles(), doubleTapDeltaTime);
@@ -101,7 +100,7 @@ public class Player : MonoBehaviour
 
     public bool IsSideDash()
     {
-        if (leftDashDoubleTap.trigger || rightDashDoubleTap.trigger) return true;
+        if (leftDashDoubleTap.trigger || rightDashDoubleTap.trigger || backDashDoubleTap.trigger) return true;
 
         return false;
     }
