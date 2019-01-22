@@ -117,6 +117,15 @@ public class Player : MonoBehaviour
         }
     }
 
+    void PrepareForClimb ()
+    {
+        m_Rigidbody.WakeUp();
+        m_Rigidbody.useGravity = true;
+        m_Rigidbody.constraints = originalConstraints;
+        m_Animator.SetBool("EnableClimb", true);
+        m_Animator.SetFloat("Climbing", 2f, 0.1f, Time.deltaTime);
+    }
+
     void CheckInteractionStatus()
     {
         RaycastHit hitInfo;
@@ -130,24 +139,27 @@ public class Player : MonoBehaviour
         {
             if (Input.GetKey(KeyCode.LeftShift) && Input.GetKey(KeyCode.W))
             {
-                m_Rigidbody.Sleep();
+                PrepareForClimb();
+                m_Rigidbody.AddForce(0f, 0.24f, 0f, ForceMode.VelocityChange);
 
-                m_Rigidbody.constraints = originalConstraints;
-                m_Animator.SetBool("EnableClimb", true);
-                m_Rigidbody.useGravity = false;
-                m_Animator.SetFloat("Climbing", 2f, 0.1f, Time.deltaTime);
-                m_Rigidbody.MovePosition(transform.position + new Vector3(0f, 2f, 0f) * 3f * Time.deltaTime);
-
-            } else if (Input.GetKey(KeyCode.LeftShift) && (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.D)))
+            } else if (Input.GetKey(KeyCode.LeftShift) && Input.GetKey(KeyCode.D))
             {
-                Debug.Log("A or D");
-                m_Rigidbody.constraints = originalConstraints;
-                m_Animator.SetBool("EnableClimb", true);
-                m_Rigidbody.useGravity = false;
-                m_Animator.SetFloat("Climbing", 2f, 0.1f, Time.deltaTime);
+                PrepareForClimb();
+                m_Rigidbody.AddForce(0.5f, 0.22f, 0f, ForceMode.VelocityChange);
+            }
+            else if (Input.GetKey(KeyCode.LeftShift) && (Input.GetKey(KeyCode.A)))
+            {
+                PrepareForClimb();
+                m_Rigidbody.AddForce(-0.5f, 0.22f, 0f, ForceMode.VelocityChange);
+            }
+            else if (Input.GetKey(KeyCode.LeftShift) && (Input.GetKey(KeyCode.S)))
+            {
+                PrepareForClimb();
+                m_Rigidbody.AddForce(0f, 0.17f, 0f, ForceMode.VelocityChange);
             }
             else if (Input.GetKey(KeyCode.LeftShift))
             {
+                m_Rigidbody.Sleep();
                 m_Rigidbody.useGravity = false;
                 m_Animator.SetBool("EnableClimb", true);
                 m_Animator.SetFloat("Climbing", 2f, 0.1f, Time.deltaTime);
