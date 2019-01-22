@@ -61,12 +61,17 @@ public class ThirdPersonCharacter : MonoBehaviour
 
         m_Rigidbody.velocity = new Vector3(move.x * m_MoveSpeedMultiplier, m_Rigidbody.velocity.y, move.z * m_MoveSpeedMultiplier);
 
-        if (player.dash)
+        if (player.forwardDashDoubleTap.trigger)
         {
             Debug.Log("accelerate");
             m_Rigidbody.AddForce(move * boost, ForceMode.Impulse);
         }
 
+        if (player.IsSideDash())
+        {
+            Debug.Log("accelerate");
+            m_Rigidbody.AddForce(move * boost /2, ForceMode.Impulse);
+        }
 
         move = transform.InverseTransformDirection(move);
         CheckGroundStatus();

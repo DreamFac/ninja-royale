@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -14,8 +15,10 @@ public class Player : MonoBehaviour
     [SerializeField] public KeyCode changeFocalSideKey;
     [SerializeField] private GameObject gameCamera;
     [SerializeField] public float dashThresHold;
+    [SerializeField] public float doubleTapDeltaTime;
+
     public bool isFocalPointOnLeft = false;
-    public bool dash = false;
+
     private float dashDelta;
     // Use this for initialization
     private int forwardDashKeyCounter;
@@ -23,9 +26,15 @@ public class Player : MonoBehaviour
     Rigidbody m_Rigidbody;
     private bool enableClimb = false;
     private RigidbodyConstraints originalConstraints;
-    private bool firstDashTime;
+
     ParticleSystem dashParticles;
     private Collider _collider;
+
+    public DoubleTap forwardDashDoubleTap;
+    public DoubleTap rightDashDoubleTap;
+    public DoubleTap leftDashDoubleTap;
+    public DoubleTap backDashDoubleTap;
+
 
     void Awake()
     {
@@ -34,33 +43,37 @@ public class Player : MonoBehaviour
 
 
     void Start () {
-        firstDashTime = true;
-        dash = false;
-        forwardDashKeyCounter = 0;
         dashThresHold = 0.5f;
+        doubleTapDeltaTime = 0.5f;
         m_Animator = GetComponent<Animator>();
         m_Rigidbody = GetComponent<Rigidbody>();
         Cursor.lockState = CursorLockMode.Locked;
         _collider = m_Rigidbody.GetComponent<Collider>();
         dashParticles = dashTrail.GetComponent<ParticleSystem>();
+
+        forwardDashDoubleTap = new DoubleTap(KeyCode.W, dashThresHold);
+        rightDashDoubleTap = new DoubleTap(KeyCode.D, dashThresHold);
+        leftDashDoubleTap = new DoubleTap(KeyCode.A, dashThresHold);
+        backDashDoubleTap = new DoubleTap(KeyCode.S, dashThresHold);
     }
 
     // Update is called once per frame
     void Update()
     {
 
-        checkSide();
-        checkAttack();
-        checkDash();
+        CheckSide();
+        CheckAttack();
+        CheckDash();
 
         CheckInteractionStatus();
 
         float targetX = focalDistance * (isFocalPointOnLeft ? -1 : 1);
+
         float smoothX = Mathf.Lerp(focalPoint.transform.localPosition.x, targetX, focalSmoothness * Time.deltaTime);
         focalPoint.transform.localPosition = new Vector3(smoothX, focalPoint.transform.localPosition.y, focalPoint.transform.localPosition.z);
     }
 
-    void checkSide()
+    void CheckSide()
     {
         if (Input.GetKeyDown(changeFocalSideKey))
         {
@@ -69,7 +82,7 @@ public class Player : MonoBehaviour
         }
     }
 
-    void checkAttack()
+    void CheckAttack()
     {
         if (Input.GetButtonDown("Fire1"))
         {
@@ -77,44 +90,43 @@ public class Player : MonoBehaviour
         }
     }
 
-    void checkDash()
+    void CheckDash()
     {
-        if (Input.GetKeyDown(KeyCode.W))
+        forwardDashDoubleTap.CheckDoubleTapUp(ActivateParticles(), DeactivateParticles());
+
+        leftDashDoubleTap.CheckDoubleTapTime(ActivateParticles(), DeactivateParticles(), doubleTapDeltaTime); 
+        rightDashDoubleTap.CheckDoubleTapTime(ActivateParticles(), DeactivateParticles(), doubleTapDeltaTime);
+        backDashDoubleTap.CheckDoubleTapTime(ActivateParticles(), DeactivateParticles(), doubleTapDeltaTime);
+    }
+
+    public bool IsSideDash()
+    {
+        if (leftDashDoubleTap.trigger || rightDashDoubleTap.trigger) return true;
+
+        return false;
+    }
+
+
+
+
+    Action ActivateParticles()
+    {
+        return () =>
         {
-            if (!dash)
-            {
-                
-                float keyPressedDelta = firstDashTime? dashThresHold+1: Time.time - dashDelta;
+            dashParticles.Play();
+            ParticleSystem.EmissionModule em = dashParticles.emission;
+            em.enabled = true;
+        };
+    }
 
-                if (keyPressedDelta < dashThresHold )
-                {
-                    forwardDashKeyCounter = forwardDashKeyCounter + 1;
-                    if (forwardDashKeyCounter == 1)
-                    {
-                        dash = true;
-                        dashParticles.Play();
-                        ParticleSystem.EmissionModule em = dashParticles.emission;
-                        em.enabled = true;
-                    }
-                }
-
-                dashDelta = Time.time;
-                firstDashTime = false;
-            }
-        }
-        if (Input.GetKeyUp(KeyCode.W))
+    Action DeactivateParticles()
+    {
+        return () =>
         {
-            if (dash && forwardDashKeyCounter == 1)
-            {
-                dash = false;
-                forwardDashKeyCounter = 0;
-                dashDelta = 0;
-                dashParticles.Stop();
-                ParticleSystem.EmissionModule em = dashParticles.emission;
-                em.enabled = false;
-            }
-
-        }
+            dashParticles.Stop();
+            ParticleSystem.EmissionModule em = dashParticles.emission;
+            em.enabled = false;
+        };
     }
 
     void CheckInteractionStatus()
